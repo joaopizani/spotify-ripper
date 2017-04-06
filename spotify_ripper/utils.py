@@ -164,9 +164,9 @@ def get_playlist_track(track, playlist):
 def change_file_extension(file_name, ext):
     return os.path.splitext(file_name)[0] + "." + ext
 
-
-def format_track_string(ripper, format_string, idx, track):
+def get_current_track_details(ripper, format_string, idx, track):
     args = get_args()
+
     current_album = ripper.current_album
     current_playlist = ripper.current_playlist
 
@@ -237,7 +237,7 @@ def format_track_string(ripper, format_string, idx, track):
     # load copyright only if needed
     copyright = label = ""
     if (format_string.find("{copyright}") >= 0 or
-            format_string.find("{label}") >= 0):
+                format_string.find("{label}") >= 0):
         album_browser = track.album.browse()
         album_browser.load(args.timeout)
         if len(album_browser.copyrights) > 0:
@@ -247,11 +247,11 @@ def format_track_string(ripper, format_string, idx, track):
     # load playlist create time or creator only if needed
     create_time = creator = ""
     if format_string.find("{create_time}") >= 0 or \
-            format_string.find("{creator}") >= 0:
+                    format_string.find("{creator}") >= 0:
         pl_track = get_playlist_track(track, current_playlist)
         if pl_track is not None:
             create_time = datetime.fromtimestamp(
-                    pl_track.create_time).strftime('%Y-%m-%d %H:%M:%S')
+                pl_track.create_time).strftime('%Y-%m-%d %H:%M:%S')
             creator = pl_track.creator.display_name
 
     tags = {
@@ -297,6 +297,10 @@ def format_track_string(ripper, format_string, idx, track):
         "track_uri": track_uri,
         "uri": track_uri
     }
+    return tags
+
+def format_track_string(format_string, tags):
+    args = get_args()
     fill_tags = {"idx", "index", "track_num", "track_idx",
                  "track_index", "disc_num", "disc_idx", "disc_index",
                  "smart_track_num", "smart_track_idx", "smart_track_index"}
